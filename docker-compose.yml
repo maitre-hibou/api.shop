@@ -1,0 +1,20 @@
+networks:
+    external:
+        driver: bridge
+    internal:
+
+services:
+    app:
+        build:
+            context: .
+            dockerfile: .docker/images/app/Dockerfile
+        container_name: ${COMPOSE_PROJECT_NAME}_app
+        networks:
+            internal:
+                aliases:
+                    - ${COMPOSE_PROJECT_NAME}-app.docker
+        volumes:
+            - app_cache:/var/cache
+
+volumes:
+    app_cache:
