@@ -37,9 +37,9 @@ up: 				## Start project containers
 ##@ Application
 
 composer: 			## Shortcut to use Composer within app container
-	$(COMPOSER) ${c}
+	@$(COMPOSER) ${c}
 
 console: 			## Shortcut to use Symfony console within app container
-	$(CONSOLE) ${c}
+	@$(CONSOLE) ${c}
 
 .PHONY: composer console
