@@ -10,10 +10,11 @@ FROM        php:${PHP_IMAGE_VERSION}-fpm AS base
 ARG         USER_ID=1000
 ARG         GROUP_ID=1000
 ENV         COMPOSER_HOME=/usr/local/lib/composer
+ARG         WORKDIR=/var/www
 
 #
-# When working with local volumes, it is usefull to synchronize the UID of the user that will create/update files on the container
-# with the one on the host machine to avoir issues with file permissions.
+# When working with local volumes, it is useful to synchronize the UID/GID of the user that will create/update files on the container
+# with the one on the host machine to avoid issues with file permissions.
 #
 RUN         usermod -u $USER_ID www-data && groupmod -g $GROUP_ID www-data
 
@@ -44,11 +45,11 @@ COPY        .docker/images/app/config/docker.php.ini /usr/local/ect/php/conf.d/
 #
 # We can now define the working directory of our image where source files will live, and enable this directory as a volume
 #
-RUN         rm -rf /var/www && mkdir -p /var/www
-RUN         chown -R www-data:www-data /var/www
+RUN         rm -rf $WORKDIR && mkdir -p $WORKDIR
+RUN         chown -R www-data:www-data $WORKDIR
 
-WORKDIR     /var/www
-VOLUME      /var/www
+WORKDIR     $WORKDIR
+VOLUME      $WORKDIR
 
 #
 # Installation of healthcheck script and dependencies
@@ -67,3 +68,38 @@ HEALTHCHECK --interval=5s --timeout=1s --retries=3 \
 # Image cleanup
 #
 RUN         apt autoremove --purge && apt clean && rm -rf /var/lib/apt/lists/* /tmp/*
+
+#
+# From now on, build steps are specific to our application.
+#
+FROM        base AS app
+
+#
+# Here, we will install required extensions for Symfony and their dependencies.
+#
+RUN         apt update && \
+            apt install -y --no-install-recommends libicu-dev libonig-dev
+
+RUN         pecl install apcu
+RUN         docker-php-ext-enable apcu
+RUN         docker-php-ext-install iconv intl mbstring opcache
+
+#
+# We copy scripts that will be used in our container such as entrypoint.
+#
+RUN         mkdir -p /.docker-scripts
+COPY        .docker/images/app/scripts/entrypoint.sh /.docker-scripts/
+
+#
+# We can finally copy the source files of our project inside the image workdir.
+#
+COPY        --chown=www-data:www-data . $WORKDIR
+
+#
+# Finally, we can cleanup image and setup entrypoiny and default command, as well as redefining the stop signal.
+#
+EXPOSE      9000
+
+STOPSIGNAL  SIGTERM
+ENTRYPOINT  ["/.docker-scripts/entrypoint.sh"]
+CMD         ["php-fpm"]
