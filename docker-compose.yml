@@ -14,7 +14,32 @@ services:
                 aliases:
                     - ${COMPOSE_PROJECT_NAME}-app.docker
         volumes:
-            - app_cache:/var/cache
+            - .:/var/www
+            - app_cache:/var/www/var/cache
+
+    web:
+        build:
+            context: .
+            dockerfile: .docker/images/web/Dockerfile
+        container_name: ${COMPOSE_PROJECT_NAME}_web
+        depends_on:
+            app:
+                condition: service_healthy
+        env_file:
+            - .env
+        labels:
+            - "traefik.enable=true"
+            - "traefik.http.routers.${COMPOSE_PROJECT_NAME}_web.entrypoints=websecure"
+            - "traefik.http.routers.${COMPOSE_PROJECT_NAME}_web.rule=Host(`${APP_DOMAIN}`)"
+            - "traefik.http.routers.${COMPOSE_PROJECT_NAME}_web.tls.certresolver=letsEncrypt"
+            - "traefik.http.services.${COMPOSE_PROJECT_NAME}_web.loadbalancer.server.port=443"
+        networks:
+            external:
+            internal:
+                aliases:
+                    - ${COMPOSE_PROJECT_NAME}-web.docker
+        volumes:
+            - ./public:/var/www/public
 
 volumes:
     app_cache:
