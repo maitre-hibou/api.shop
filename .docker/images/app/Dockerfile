@@ -80,8 +80,8 @@ FROM        base AS app
 RUN         apt update && \
             apt install -y --no-install-recommends libicu-dev libonig-dev
 
-RUN         pecl install apcu
-RUN         docker-php-ext-enable apcu
+RUN         pecl install apcu redis
+RUN         docker-php-ext-enable apcu redis
 RUN         docker-php-ext-install iconv intl mbstring opcache
 
 #
