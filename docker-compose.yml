@@ -9,6 +9,9 @@ services:
             context: .
             dockerfile: .docker/images/app/Dockerfile
         container_name: ${COMPOSE_PROJECT_NAME}_app
+        depends_on:
+            cache:
+                condition: service_healthy
         networks:
             internal:
                 aliases:
@@ -16,6 +19,16 @@ services:
         volumes:
             - .:/var/www
             - app_cache:/var/www/var/cache
+
+    cache:
+        build:
+            context: .
+            dockerfile: .docker/images/redis/Dockerfile
+        container_name: ${COMPOSE_PROJECT_NAME}_cache
+        networks:
+            internal:
+                aliases:
+                    - ${COMPOSE_PROJECT_NAME}-cache.docker
 
     web:
         build:
