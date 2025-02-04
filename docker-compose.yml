@@ -48,6 +48,27 @@ services:
         volumes:
             - app_database:/var/lib/mysql
 
+    db_admin:
+        image: phpmyadmin:5.2-apache
+        container_name: ${COMPOSE_PROJECT_NAME}_db_admin
+        depends_on:
+            database:
+                condition: service_healthy
+        environment:
+            PMA_HOST: ${COMPOSE_PROJECT_NAME}-database.docker
+            PMA_USER: ${DB_USERNAME}
+            PMA_PASSWORD: ${DB_PASSWORD}
+        networks:
+            external:
+            internal:
+                aliases:
+                    - ${COMPOSE_PROJECT_NAME}-db_admin.docker
+        labels:
+            - "traefik.enable=true"
+            - "traefik.http.routers.${COMPOSE_PROJECT_NAME}_db_admin.entrypoints=web"
+            - "traefik.http.routers.${COMPOSE_PROJECT_NAME}_db_admin.rule=Host(`pma.${APP_DOMAIN}`)"
+            - "traefik.http.services.${COMPOSE_PROJECT_NAME}_db_admin.loadbalancer.server.port=80"
+
     web:
         build:
             context: .
