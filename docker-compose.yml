@@ -12,6 +12,8 @@ services:
         depends_on:
             cache:
                 condition: service_healthy
+            database:
+                condition: service_healthy
         networks:
             internal:
                 aliases:

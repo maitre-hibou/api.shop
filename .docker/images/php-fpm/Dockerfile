@@ -82,7 +82,7 @@ RUN         apt update && \
 
 RUN         pecl install apcu redis
 RUN         docker-php-ext-enable apcu redis
-RUN         docker-php-ext-install opcache
+RUN         docker-php-ext-install opcache pdo_mysql
 
 #
 # We copy scripts that will be used in our container such as entrypoint.
@@ -96,7 +96,7 @@ COPY        .docker/images/php-fpm/scripts/entrypoint.sh /.docker-scripts/
 COPY        --chown=www-data:www-data . $WORKDIR
 
 #
-# Finally, we can cleanup image and setup entrypoiny and default command, as well as redefining the stop signal.
+# Finally, we can cleanup image and setup entrypoint and default command, as well as redefining the stop signal.
 #
 EXPOSE      9000
 
