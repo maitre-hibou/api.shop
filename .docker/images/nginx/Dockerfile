@@ -21,10 +21,10 @@ RUN         usermod -u $USER_ID www-data && groupmod -g $GROUP_ID www-data
 # We copy scripts and config that will be used in our container such as entrypoint.
 #
 RUN         mkdir -p /.docker-scripts
-COPY        .docker/images/web/scripts/entrypoint.sh /.docker-scripts/
+COPY        .docker/images/nginx/scripts/entrypoint.sh /.docker-scripts/
 
 RUN         mkdir -p /.docker-config
-COPY        .docker/images/web/config /.docker-config
+COPY        .docker/images/nginx/config /.docker-config
 
 #
 # We set the working directory for the container
