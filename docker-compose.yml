@@ -29,6 +29,23 @@ services:
                 aliases:
                     - ${COMPOSE_PROJECT_NAME}-cache.docker
 
+    database:
+        build:
+            context: .
+            dockerfile: .docker/images/mariadb/Dockerfile
+        container_name: ${COMPOSE_PROJECT_NAME}_database
+        environment:
+            MYSQL_ROOT_PASSWORD: 5ecr3t
+            MYSQL_USER: ${DB_USERNAME}
+            MYSQL_PASSWORD: ${DB_PASSWORD}
+            MYSQL_DATABASE: ${DB_DATABASE}
+        networks:
+            internal:
+                aliases:
+                    - ${COMPOSE_PROJECT_NAME}-database.docker
+        volumes:
+            - app_database:/var/lib/mysql
+
     web:
         build:
             context: .
@@ -53,4 +70,4 @@ services:
             - ./public:/var/www/public
 
 volumes:
-    app_cache:
+    app_database:
