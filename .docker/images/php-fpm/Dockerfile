@@ -40,7 +40,7 @@ COPY        --from=composer/composer:2.8 /usr/bin/composer /usr/local/bin/compos
 #
 # Next, we copy our own PHP configuration file to override core PHP configurations.
 #
-COPY        .docker/images/php-fpm/config/docker.php.ini /usr/local/ect/php/conf.d/
+COPY        .docker/images/php-fpm/config/docker.php.ini /usr/local/etc/php/conf.d/
 
 #
 # We can now define the working directory of our image where source files will live, and enable this directory as a volume
@@ -82,7 +82,7 @@ RUN         apt update && \
 
 RUN         pecl install apcu redis
 RUN         docker-php-ext-enable apcu redis
-RUN         docker-php-ext-install opcache pdo_mysql
+RUN         docker-php-ext-install intl opcache pdo_mysql
 
 #
 # We copy scripts that will be used in our container such as entrypoint.
