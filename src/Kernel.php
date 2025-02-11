@@ -10,6 +10,7 @@ use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\HttpKernel\Kernel as BaseKernel;
+use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 
 class Kernel extends BaseKernel
 {
@@ -31,5 +32,25 @@ class Kernel extends BaseKernel
         }
 
         DomainConfigLoader::load($this->getProjectDir(), $loader);
+    }
+
+    private function configureRoutes(RoutingConfigurator $routes): void
+    {
+        $configDir = $this->getConfigDir();
+
+        $routes->import($configDir.'/{routes}/'.$this->environment.'/*.{php,yaml}');
+        $routes->import($configDir.'/{routes}/*.{php,yaml}');
+
+        if (is_file($configDir.'/routes.yaml')) {
+            $routes->import($configDir.'/routes.yaml');
+        } else {
+            $routes->import($configDir.'/{routes}.php');
+        }
+
+        if (false !== ($fileName = (new \ReflectionObject($this))->getFileName())) {
+            $routes->import($fileName, 'attribute');
+        }
+
+        $routes->import(sprintf('%s/src/**/*/Infrastructure/Symfony/_config/routes.{yaml,yml,php,yaml}', $this->getProjectDir()));
     }
 }
