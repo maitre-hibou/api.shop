@@ -31,6 +31,7 @@ stop: 				## Stop project containers
 
 up: 				## Start project containers
 	@docker compose up -d
+	-@docker network connect ${COMPOSE_PROJECT_NAME}_external ${LOCAL_PROXY_CONTAINER_NAME}
 
 .PHONY: build down kill up
 
