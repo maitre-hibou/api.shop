@@ -1,0 +1,59 @@
+{% extends '@shared/_layout/default.html.twig' %}
+
+{% block page_styles %}
+    <style>
+        html, body {
+            height: 100%;
+        }
+
+        main {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .product-device {
+            position: absolute;
+            right: 10%;
+            bottom: -270px;
+            width: 300px;
+            height: 540px;
+            background-color: #333;
+            border-radius: 21px;
+            transform: rotate(30deg);
+        }
+
+        .product-device::before {
+            position: absolute;
+            top: 10%;
+            right: 10px;
+            bottom: 10%;
+            left: 10px;
+            content: "";
+            background-color: rgba(255, 255, 255, .1);
+            border-radius: 5px;
+        }
+
+        .product-device-2 {
+            top: -270px;
+            right: auto;
+            bottom: 0;
+            left: 5%;
+            background-color: #e5e5e5;
+        }
+
+    </style>
+{% endblock %}
+
+{% block content %}
+    <main class="d-flex justify-content-center align-items-center h-100">
+        <div class="container justify-content-center">
+            <div class="row justify-content-center">
+                <div class="col-12 col-md-8 col-lg-6">
+                    <h1 class="display-1 text-center">Shop 📦</h1>
+                </div>
+            </div>
+        </div>
+        <div class="product-device shadow-sm d-none d-md-block"></div>
+        <div class="product-device product-device-2 shadow-sm d-none d-md-block"></div>
+    </main>
+{% endblock %}

@@ -1,0 +1,26 @@
+twig:
+    paths:
+        '%kernel.project_dir%/src/Shared/UI/Resources/templates': 'shared'
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    App\Shared\:
+        resource: '../../../'
+        exclude:
+            - '../../../Infrastructure/Symfony/_config/'
+            - '../../../Infrastructure/Symfony/DependencyInjection/'
+            - '../../../UI/Resources/'
+
+    Symfony\Component\HttpFoundation\Session\Storage\Handler\RedisSessionHandler:
+        arguments:
+            - '@Redis'
+
+    Redis:
+        class: \Redis
+        calls:
+            - connect:
+                  - '%env(REDIS_HOST)%'
+                  - '%env(REDIS_PORT)%'

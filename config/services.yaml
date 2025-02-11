@@ -18,18 +18,8 @@ services:
         exclude:
             - '../src/DependencyInjection/'
             - '../src/Entity/'
+            - '../src/Shared/'
             - '../src/Kernel.php'
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
-
-    Symfony\Component\HttpFoundation\Session\Storage\Handler\RedisSessionHandler:
-        arguments:
-            - '@Redis'
-
-    Redis:
-        class: \Redis
-        calls:
-            - connect:
-                  - '%env(REDIS_HOST)%'
-                  - '%env(REDIS_PORT)%'
