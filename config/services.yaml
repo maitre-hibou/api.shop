@@ -18,6 +18,7 @@ services:
         exclude:
             - '../src/DependencyInjection/'
             - '../src/Entity/'
+            - '../src/Security/'
             - '../src/Shared/'
             - '../src/Kernel.php'
 

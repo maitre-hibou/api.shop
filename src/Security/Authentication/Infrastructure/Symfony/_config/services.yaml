@@ -1,0 +1,28 @@
+parameters:
+    jwt:
+        openssl:
+            private_key: '%kernel.project_dir%/config/certs/private.pem'
+            private_key_pass: 'secret'
+            public_key: '%kernel.project_dir%/config/certs/public.pem'
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        bind:
+            $jwtConfig: '%jwt%'
+
+    App\Security\Authentication\:
+        resource: '../../../'
+        exclude:
+            - '../../../Infrastructure/Symfony/_config/'
+            - '../../../Infrastructure/Symfony/DependencyInjection/'
+            - '../../../UI/Resources/'
+
+when@test:
+    parameters:
+        jwt:
+            openssl:
+                private_key_pass: 'secret'
+                private_key: '%kernel.project_dir%/tests/.stubs/structure/config/certs/private.pem'
+                public_key: '%kernel.project_dir%/tests/.stubs/structure/config/certs/public.pem'
