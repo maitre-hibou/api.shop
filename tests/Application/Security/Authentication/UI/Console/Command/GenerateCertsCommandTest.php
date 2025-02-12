@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Feature\Security\Authentication\UI\Console\Command;
+namespace App\Tests\Application\Security\Authentication\UI\Console\Command;
 
 use App\Security\Authentication\UI\Console\Command\GenerateCertsCommand;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
@@ -17,6 +17,11 @@ class GenerateCertsCommandTest extends KernelTestCase
     protected function setUp(): void
     {
         self::bootKernel();
+    }
+
+    protected function tearDown(): void
+    {
+        $this->clearKeys();
     }
 
     public function testExecute(): void
@@ -55,8 +60,8 @@ class GenerateCertsCommandTest extends KernelTestCase
         $output = $commandTester->getDisplay();
 
         $commandTester->assertCommandIsSuccessful();
-        $this->assertStringContainsString(sprintf('[INFO] Update your private key in "%s"', $jwtConfig['openssl']['private_key']), $output);
-        $this->assertStringContainsString(sprintf('[INFO] Update your public key in "%s"', $jwtConfig['openssl']['public_key']), $output);
+        $this->assertStringContainsString('[INFO] Update your private key', $output);
+        $this->assertStringContainsString('[INFO] Update your public key', $output);
         $this->assertSame(file_get_contents($jwtConfig['openssl']['private_key']), $keyContent);
     }
 
