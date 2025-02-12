@@ -20,6 +20,7 @@ build: 				## Build project images
 	@docker compose build --pull
 
 down: 				## Remove project containers
+	-@docker network disconnect ${COMPOSE_PROJECT_NAME}_external ${LOCAL_PROXY_CONTAINER_NAME}
 	@docker compose down -v --remove-orphans
 
 kill:
