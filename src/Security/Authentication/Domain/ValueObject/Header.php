@@ -14,8 +14,8 @@ class Header implements \JsonSerializable, \Stringable
     public const string ALG_RS256 = 'RS256';
 
     public const array SUPPORT_ALGS = [
-        self::ALG_HS256 => [],
-        self::ALG_RS256 => [],
+        self::ALG_HS256 => ['hash_hmac', 'sha256'],
+        self::ALG_RS256 => ['openssl', 'sha256'],
     ];
 
     public function __construct(
