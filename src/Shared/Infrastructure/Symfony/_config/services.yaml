@@ -24,6 +24,10 @@ services:
             - '../../../Infrastructure/Symfony/DependencyInjection/'
             - '../../../UI/Resources/'
 
+    App\Shared\Infrastructure\ApiPlatform\OpenAPI\OpenAPIDecorator:
+        decorates: 'api_platform.openapi.factory'
+        arguments: [ '@.inner' ]
+
     Symfony\Component\HttpFoundation\Session\Storage\Handler\RedisSessionHandler:
         arguments:
             - '@Redis'
