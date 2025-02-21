@@ -45,3 +45,10 @@ console: 			## Shortcut to use Symfony console within app container
 	@$(CONSOLE) ${c}
 
 .PHONY: composer console
+
+##@ Testing / QA
+
+phpunit: 			## Execute PHPUnit test suite
+	@docker compose run --rm app php bin/phpunit
+
+.PHONY: phpunit
