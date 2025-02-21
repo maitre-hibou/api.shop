@@ -10,6 +10,6 @@ services:
     App\Content\:
         resource: '../../../'
         exclude:
-            - '../../../Infrastructure/Symfony/_config/'
+            - './'
             - '../../../Infrastructure/Symfony/DependencyInjection/'
             - '../../../UI/Resources/'
