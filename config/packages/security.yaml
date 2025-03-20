@@ -5,10 +5,18 @@ security:
     # https://symfony.com/doc/current/security.html#loading-the-user-the-user-provider
     providers:
         users_in_memory: { memory: null }
+        app_user_provider:
+            id: App\Security\Authentication\Infrastructure\Symfony\UserProvider
+
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
+        login:
+            pattern: ^/auth/login$
+            provider: app_user_provider
+            json_login:
+                check_path: security_authentication__auth_login
         main:
             lazy: true
             provider: users_in_memory
