@@ -2,10 +2,18 @@ twig:
     paths:
         '%kernel.project_dir%/src/Shared/UI/Resources/templates': 'shared'
 
+parameters:
+    shared.database:
+        dsn: '%env(DB_DSN)%'
+        username: '%env(DB_USERNAME)%'
+        password: '%env(DB_PASSWORD)%'
+
 services:
     _defaults:
         autowire: true
         autoconfigure: true
+        bind:
+            $dbParameters: '%shared.database%'
 
     App\Shared\:
         resource: '../../../'
