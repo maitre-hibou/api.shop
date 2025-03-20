@@ -7,6 +7,7 @@ parameters:
         dsn: '%env(DB_DSN)%'
         username: '%env(DB_USERNAME)%'
         password: '%env(DB_PASSWORD)%'
+    shared.migrations.path: '%kernel.project_dir%/database/migrations'
 
 services:
     _defaults:
@@ -14,6 +15,7 @@ services:
         autoconfigure: true
         bind:
             $dbParameters: '%shared.database%'
+            $migrationsPath: '%shared.migrations.paths%'
 
     App\Shared\:
         resource: '../../../'
