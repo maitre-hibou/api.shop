@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-use App\Shared\Domain\Database\Migration;
+use App\Shared\Domain\Database\MigrationInterface;
 use App\Shared\Infrastructure\PDO\Connection;
 
-return new class implements Migration
+return new class implements MigrationInterface
 {
     public function up(Connection $connection): void
     {
