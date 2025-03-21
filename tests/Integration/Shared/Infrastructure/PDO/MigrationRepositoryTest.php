@@ -2,19 +2,19 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Functional\Infrastructure\PDO;
+namespace App\Tests\Integration\Shared\Infrastructure\PDO;
 
-use App\Shared\Domain\Database\MigrationInterface;
 use App\Shared\Infrastructure\PDO\Connection;
 use App\Shared\Infrastructure\PDO\MigrationRepository;
+use App\Tests\CanCreateMigrationFiles;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Filesystem\Filesystem;
 
 class MigrationRepositoryTest extends TestCase
 {
-    private MigrationRepository $migrationRepository;
+    use CanCreateMigrationFiles;
 
-    private string $migrationsPath;
+    private MigrationRepository $migrationRepository;
 
     private Connection $connection;
 
@@ -132,23 +132,5 @@ class MigrationRepositoryTest extends TestCase
         $this->connection->exec('DROP TABLE IF EXISTS migrations');
 
         $this->filesystem->remove($this->migrationsPath);
-    }
-
-    private function createTestMigrationFile(string $filename): void
-    {
-        $content = <<<'PHP'
-<?php
-declare(strict_types=1);
-
-use App\Shared\Domain\Database\MigrationInterface;
-use App\Shared\Infrastructure\PDO\Connection;
-
-return new class implements MigrationInterface {
-    public function up(Connection $connection): void {}
-    public function down(Connection $connection): void {}
-};
-PHP;
-
-        file_put_contents($this->migrationsPath . '/' . $filename, $content);
     }
 }

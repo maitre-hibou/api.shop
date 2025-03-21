@@ -7,15 +7,16 @@ namespace App\Tests\Unit\Shared\Infrastructure\PDO;
 use App\Shared\Domain\Database\MigrationInterface;
 use App\Shared\Infrastructure\PDO\Connection;
 use App\Shared\Infrastructure\PDO\MigrationRepository;
+use App\Tests\CanCreateMigrationFiles;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Filesystem\Filesystem;
 
 class MigrationRepositoryTest extends TestCase
 {
-    private MigrationRepository $migrationRepository;
+    use CanCreateMigrationFiles;
 
-    private string $migrationsPath;
+    private MigrationRepository $migrationRepository;
 
     private MockObject $connection;
 
@@ -191,23 +192,5 @@ class MigrationRepositoryTest extends TestCase
     protected function tearDown(): void
     {
         $this->filesystem->remove($this->migrationsPath);
-    }
-
-    private function createTestMigrationFile(string $filename): void
-    {
-        $content = <<<'PHP'
-<?php
-declare(strict_types=1);
-
-use App\Shared\Domain\Database\MigrationInterface;
-use App\Shared\Infrastructure\PDO\Connection;
-
-return new class implements MigrationInterface {
-    public function up(Connection $connection): void {}
-    public function down(Connection $connection): void {}
-};
-PHP;
-
-        file_put_contents($this->migrationsPath . '/' . $filename, $content);
     }
 }
