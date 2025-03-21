@@ -15,7 +15,7 @@ services:
         autoconfigure: true
         bind:
             $dbParameters: '%shared.database%'
-            $migrationsPath: '%shared.migrations.paths%'
+            $migrationsPath: '%shared.migrations.path%'
 
     App\Shared\:
         resource: '../../../'
