@@ -1,5 +1,9 @@
 parameters:
     jwt:
+        ttl: 300
+        mode: openssl
+        hash_hmac:
+            passphrase: 'secret'
         openssl:
             private_key: '%kernel.project_dir%/config/certs/private.pem'
             private_key_pass: 'secret'

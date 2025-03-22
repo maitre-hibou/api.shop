@@ -49,6 +49,6 @@ console: 			## Shortcut to use Symfony console within app container
 ##@ Testing / QA
 
 phpunit: 			## Execute PHPUnit test suite
-	@docker compose run --rm app php bin/phpunit
+	@docker compose run --rm app php bin/phpunit ${c}
 
 .PHONY: phpunit

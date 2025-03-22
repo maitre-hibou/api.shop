@@ -7,6 +7,7 @@ namespace App\Security\Authentication\Domain\Aggregate;
 use App\Security\Authentication\Domain\Exception\InvalidJWTException;
 use App\Security\Authentication\Domain\ValueObject\Header;
 use App\Security\Authentication\Domain\ValueObject\Payload;
+use Webmozart\Assert\Assert;
 use function App\urlsafe_base64_decode;
 use function App\urlsafe_base64_encode;
 
@@ -20,7 +21,16 @@ class JWT implements \Stringable
     public function __construct(
         public readonly Header $header,
         public readonly Payload $payload,
-        private string $signature = '',
+        public ?string $signature = null {
+            get => $this->signature;
+            set(?string $value) {
+                if (isset($this->signature)) {
+                    Assert::null($this->signature, 'Resigning token is forbidden');
+                }
+
+                $this->signature = $value;
+            }
+        },
     ) {
     }
 
@@ -36,61 +46,7 @@ class JWT implements \Stringable
 
     public function signature(): string
     {
-        return urlsafe_base64_encode($this->signature);
-    }
-
-    public function sign(string|\OpenSSLAsymmetricKey|\OpenSSLCertificate $key): void
-    {
-        list($function, $algorithm) = Header::SUPPORT_ALGS[$this->header->alg];
-
-        switch ($function) {
-            case 'hash_hmac':
-                if (false === is_string($key)) {
-                    throw new \InvalidArgumentException('Key must be a string when using hmac encryption');
-                }
-                $this->signature = hash_hmac($algorithm, $this->imprint(), $key);
-                break;
-            case 'openssl':
-                try {
-                    if (false === openssl_sign($this->imprint(), $this->signature, $key, $algorithm)) {
-                        throw new \RuntimeException('OpenSSL failed to sign token');
-                    }
-                } catch (\Exception) {
-                    throw new \RuntimeException('OpenSSL failed to sign token');
-                }
-                break;
-        }
-    }
-
-    /**
-     * @throws InvalidJWTException
-     */
-    public function verify(string|\OpenSSLCertificate|\OpenSSLAsymmetricKey $key): bool
-    {
-        list($function, $algorithm) = Header::SUPPORT_ALGS[$this->header->alg];
-
-        switch ($function) {
-            case 'hash_hmac':
-                $hash = hash_hmac($algorithm, $this->imprint(), $key);
-
-                if ($hash !== $this->signature) {
-                    throw new InvalidJWTException('Invalid token signature');
-                }
-
-                break;
-            case 'openssl':
-                $success = openssl_verify($this->imprint(), $this->signature, $key, $algorithm);
-
-                if (1 !== $success) {
-                    throw new InvalidJWTException('Invalid token signature');
-                }
-
-                break;
-            default:
-                throw new InvalidJWTException('Unsupported algorithm');
-        }
-
-        return true;
+        return null !== $this->signature ? urlsafe_base64_encode($this->signature) : '';
     }
 
     public static function expand(string $jwtString): static

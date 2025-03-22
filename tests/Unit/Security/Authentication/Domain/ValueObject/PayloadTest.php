@@ -9,19 +9,46 @@ use PHPUnit\Framework\TestCase;
 
 class PayloadTest extends TestCase
 {
-    public function testPayloadCreationFailsWhenNoIatFieldIsProvided(): void
+    public function payloadCreationFailsWhenMissingRequiredClaimProvider(): array
+    {
+        return [
+            ['exp', 'JWT payload should contain a "exp" (expiration time) key'],
+            ['iat', 'JWT payload should contain a "iat" (issued at) key'],
+            ['iss', 'JWT payload should contain a "iss" (issuer) key'],
+            ['sub', 'JWT payload should contain a "sub" (subject) key'],
+        ];
+    }
+
+    /**
+     * @dataProvider payloadCreationFailsWhenMissingRequiredClaimProvider
+     */
+    public function testPayloadCreationFailsWhenMissingRequiredClaim(string $claim, string $message): void
     {
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('JWT payload should contain an "iat" key');
+        $this->expectExceptionMessage($message);
 
-        new Payload([]);
+        $compliant = [
+            'exp' => time() + 300,
+            'iat' => time(),
+            'iss' => 'API.Shop Tests',
+            'sub' => 'Tester',
+        ];
+
+        unset($compliant[$claim]);
+
+        new Payload($compliant);
     }
 
     public function testPayloadReadingAsArray(): void
     {
-        $payload = new Payload(['iat' => time(), 'email' => 'user@example.com']);
+        $payload = new Payload([
+            'exp' => time() + 300,
+            'iat' => time(),
+            'iss' => 'API.Shop Tests',
+            'sub' => 'user@example.com'
+        ]);
 
-        $this->assertEquals('user@example.com', $payload['email']);
+        $this->assertEquals('user@example.com', $payload['sub']);
     }
 
     public function testPayloadModificationThrowsException(): void
@@ -29,7 +56,12 @@ class PayloadTest extends TestCase
         $this->expectException(\BadMethodCallException::class);
         $this->expectExceptionMessage('JWT payload are read-only');
 
-        $payload = new Payload(['iat' => time(), 'email' => 'user@example.com']);
+        $payload = new Payload([
+            'exp' => time() + 300,
+            'iat' => time(),
+            'iss' => 'API.Shop Tests',
+            'sub' => 'user@example.com'
+        ]);
 
         $payload['user'] = 'john.doe@example.com';
     }
@@ -39,16 +71,23 @@ class PayloadTest extends TestCase
         $this->expectException(\BadMethodCallException::class);
         $this->expectExceptionMessage('JWT payload are read-only');
 
-        $payload = new Payload(['iat' => time(), 'email' => 'user@example.com']);
+        $payload = new Payload([
+            'exp' => time() + 300,
+            'iat' => time(),
+            'iss' => 'API.Shop Tests',
+            'sub' => 'user@example.com'
+        ]);
 
-        unset($payload['user']);
+        unset($payload['sub']);
     }
 
     public function testPayloadUsageAsTraversable(): void
     {
         $data = [
+            'exp' => time() + 300,
             'iat' => time(),
-            'email' => 'user@example.com',
+            'iss' => 'API.Shop Tests',
+            'sub' => 'user@example.com'
         ];
 
         $payload = new Payload($data);
@@ -62,17 +101,31 @@ class PayloadTest extends TestCase
     {
         $now = time();
 
-        $payload = new Payload(['iat' => $now]);
+        $data = [
+            'exp' => $now + 300,
+            'iat' => $now,
+            'iss' => 'API.Shop Tests',
+            'sub' => 'user@example.com'
+        ];
 
-        $this->assertEquals(sprintf('{"iat":%d}', $now), json_encode($payload));
+        $payload = new Payload($data);
+
+        $this->assertEquals(sprintf('{"exp":%d,"iat":%d,"iss":"API.Shop Tests","sub":"user@example.com"}', $now + 300, $now), json_encode($payload));
     }
 
     public function testPayloadIsStringable(): void
     {
         $now = time();
 
-        $payload = new Payload(['iat' => $now]);
+        $data = [
+            'exp' => $now + 300,
+            'iat' => $now,
+            'iss' => 'API.Shop Tests',
+            'sub' => 'user@example.com'
+        ];
 
-        $this->assertEquals(sprintf('{"iat":%d}', $now), (string) $payload);
+        $payload = new Payload($data);
+
+        $this->assertEquals(sprintf('{"exp":%d,"iat":%d,"iss":"API.Shop Tests","sub":"user@example.com"}', $now + 300, $now), (string) $payload);
     }
 }

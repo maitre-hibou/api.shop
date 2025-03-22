@@ -5,15 +5,15 @@ namespace App\Security\Authentication\Domain\ValueObject;
 use Traversable;
 use Webmozart\Assert\Assert;
 
-readonly class Payload implements \ArrayAccess, \IteratorAggregate, \JsonSerializable, \Stringable
+final readonly class Payload implements \ArrayAccess, \IteratorAggregate, \JsonSerializable, \Stringable
 {
     public function __construct(
         private array $data = []
     ) {
-        /**
-         * This behavior is not RFC compliant, but it simplifies JWT validity checks.
-         */
-        Assert::inArray('iat', array_keys($this->data), 'JWT payload should contain an "iat" key');
+        Assert::inArray('exp', array_keys($this->data), 'JWT payload should contain a "exp" (expiration time) key');
+        Assert::inArray('iat', array_keys($this->data), 'JWT payload should contain a "iat" (issued at) key');
+        Assert::inArray('iss', array_keys($this->data), 'JWT payload should contain a "iss" (issuer) key');
+        Assert::inArray('sub', array_keys($this->data), 'JWT payload should contain a "sub" (subject) key');
     }
 
     public function offsetExists(mixed $offset): bool
