@@ -12,7 +12,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Filesystem\Filesystem;
 
-#[AsCommand(name: 'app:security:generate-certs')]
+#[AsCommand(name: 'app:security:generate-certs', description: 'Generate OpenSSL certificates used for JWT encryption.')]
 class GenerateCertsCommand extends Command
 {
     private SymfonyStyle $io;
@@ -21,12 +21,11 @@ class GenerateCertsCommand extends Command
         private readonly array $jwtConfig,
         private readonly Filesystem $fs,
     ) {
-        parent::__construct('app:security:generate-certs');
+        parent::__construct();
     }
 
     protected function configure(): void
     {
-        $this->setDescription('Generate OpenSSL certificates used for JWT encryption.');
         $this->addOption('dry-run', null, InputOption::VALUE_NONE, 'Do not update certificates files.');
         $this->addOption('overwrite', null, InputOption::VALUE_NONE, 'Overwrite certificates files.');
     }
