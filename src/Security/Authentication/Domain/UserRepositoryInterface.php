@@ -6,5 +6,5 @@ namespace App\Security\Authentication\Domain;
 
 interface UserRepositoryInterface
 {
-    public function findByEmail(string $email): ?UserInterface;
+    public function findUserByEmail(string $email): ?UserInterface;
 }

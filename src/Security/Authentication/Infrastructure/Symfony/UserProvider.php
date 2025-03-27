@@ -4,17 +4,16 @@ declare(strict_types=1);
 
 namespace App\Security\Authentication\Infrastructure\Symfony;
 
+use App\Security\Authentication\Application\Query as Query;
 use App\Security\Authentication\Domain\UserInterface as DomainUserInterface;
-use App\Security\Authentication\Domain\UserRepositoryInterface;
 use Symfony\Component\Security\Core\Exception\UserNotFoundException;
-use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 
 final readonly class UserProvider implements UserProviderInterface
 {
     public function __construct(
-        private UserRepositoryInterface $userRepository,
+        private Query\UserByEmail $queryUserByEmail
     ) {
     }
 
@@ -30,37 +29,10 @@ final readonly class UserProvider implements UserProviderInterface
 
     public function loadUserByIdentifier(string $identifier): UserInterface
     {
-        if (null === ($user = $this->userRepository->findByEmail($identifier))) {
+        if (null === ($user = ($this->queryUserByEmail)($identifier))) {
             throw new UserNotFoundException();
         }
 
-        return new readonly class($user->email, $user->password, $user->roles) implements UserInterface, PasswordAuthenticatedUserInterface {
-            public function __construct(
-                private string $username,
-                private string $password,
-                private array $roles = ['ROLE_USER'],
-            ) {
-            }
-
-            public function getRoles(): array
-            {
-                return $this->roles;
-            }
-
-            public function eraseCredentials(): void
-            {
-                // ...
-            }
-
-            public function getUserIdentifier(): string
-            {
-                return $this->username;
-            }
-
-            public function getPassword(): ?string
-            {
-                return $this->password;
-            }
-        };
+        return new User($user->email, $user->password, $user->roles);
     }
 }
