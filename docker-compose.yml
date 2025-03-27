@@ -3,11 +3,16 @@ networks:
         driver: bridge
     internal:
 
+x-app-common: &app-common
+    build:
+        context: .
+        dockerfile: .docker/images/php-fpm/Dockerfile
+    volumes:
+        - .:/var/www
+
 services:
     app:
-        build:
-            context: .
-            dockerfile: .docker/images/php-fpm/Dockerfile
+        <<: *app-common
         container_name: ${COMPOSE_PROJECT_NAME}_app
         depends_on:
             cache:
@@ -18,8 +23,14 @@ services:
             internal:
                 aliases:
                     - ${COMPOSE_PROJECT_NAME}-app.docker
-        volumes:
-            - .:/var/www
+
+    test-runner:
+        <<: *app-common
+        command: php bin/phpunit --do-not-cache-result
+        container_name: ${COMPOSE_PROJECT_NAME}_test_runner
+        depends_on:
+            app:
+                condition: service_healthy
 
     cache:
         build:
