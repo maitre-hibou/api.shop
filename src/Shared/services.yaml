@@ -18,11 +18,15 @@ services:
             $migrationsPath: '%shared.migrations.path%'
 
     App\Shared\:
-        resource: '../../../'
+        resource: './'
         exclude:
-            - './'
-            - '../../../Infrastructure/Symfony/DependencyInjection/'
-            - '../../../UI/Resources/'
+            - './Domain/'
+            - './Infrastructure/Symfony/DependencyInjection/'
+            - './UI/Resources/'
+
+    App\Shared\Domain\Database\MigrationExecutorInterface: '@App\Shared\Infrastructure\PDO\MigrationExecutor'
+
+    App\Shared\Domain\Database\MigrationRepositoryInterface: '@App\Shared\Infrastructure\PDO\MigrationRepository'
 
     App\Shared\Infrastructure\ApiPlatform\OpenAPI\OpenAPIDecorator:
         decorates: 'api_platform.openapi.factory'

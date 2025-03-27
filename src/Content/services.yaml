@@ -8,8 +8,8 @@ services:
         autoconfigure: true
 
     App\Content\:
-        resource: '../../../'
+        resource: './'
         exclude:
-            - './'
-            - '../../../Infrastructure/Symfony/DependencyInjection/'
-            - '../../../UI/Resources/'
+            - './Domain/'
+            - './Infrastructure/Symfony/DependencyInjection/'
+            - './UI/Resources/'
