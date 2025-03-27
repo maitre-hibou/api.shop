@@ -4,19 +4,19 @@ declare(strict_types=1);
 
 namespace App\Shared\UI\Console\Command;
 
-use App\Shared\Application\Database\MigrationExecutor;
+use App\Shared\Application\Command\Database as Command;
 use Symfony\Component\Console\Attribute\AsCommand;
-use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Command\Command as SymfonyCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(name: 'migrations:migrate', description: 'Execute pending database migrations.')]
 final class MigrateCommand extends AbstractCommand
 {
     public function __construct(
-        private readonly MigrationExecutor $migrationService
+        private readonly Command\Migrate $migrateCommand,
+        private readonly Command\Rollback $rollbackCommand
     )
     {
         parent::__construct();
@@ -38,13 +38,13 @@ final class MigrateCommand extends AbstractCommand
 
         try {
             $executed = match ($rollback) {
-                false => $this->migrationService->migrate(),
-                default => $this->migrationService->rollback(),
+                false => ($this->migrateCommand)(),
+                default => ($this->rollbackCommand)(),
             };
         } catch (\Exception $e) {
             $this->io->error($e->getMessage());
 
-            return Command::FAILURE;
+            return SymfonyCommand::FAILURE;
         }
 
 
@@ -54,7 +54,7 @@ final class MigrateCommand extends AbstractCommand
                 default => 'Nothing to rollback.',
             });
 
-            return Command::SUCCESS;
+            return SymfonyCommand::SUCCESS;
         }
 
         $this->io->success(match ($rollback) {
@@ -63,6 +63,6 @@ final class MigrateCommand extends AbstractCommand
         });
         $this->io->listing($executed);
 
-        return Command::SUCCESS;
+        return SymfonyCommand::SUCCESS;
     }
 }

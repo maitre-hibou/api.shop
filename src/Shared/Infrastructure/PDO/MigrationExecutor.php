@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\Shared\Application\Database;
+namespace App\Shared\Infrastructure\PDO;
 
+use App\Shared\Domain\Database\MigrationExecutorInterface;
 use App\Shared\Domain\Database\MigrationRepositoryInterface;
-use App\Shared\Infrastructure\PDO\Connection;
 
-final readonly class MigrationExecutor
+final readonly class MigrationExecutor implements MigrationExecutorInterface
 {
     public function __construct(
         private MigrationRepositoryInterface $repository,
