@@ -31,6 +31,8 @@ services:
         depends_on:
             app:
                 condition: service_healthy
+        environment:
+            APP_ENV: test
 
     cache:
         build:
