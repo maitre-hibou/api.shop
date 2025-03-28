@@ -13,3 +13,5 @@ if ($_SERVER['APP_DEBUG']) {
 }
 
 \DG\BypassFinals::enable();
+
+passthru(sprintf('APP_ENV=%s php "%s/../bin/console" cache:clear --no-warmup', $_ENV['APP_ENV'], __DIR__));

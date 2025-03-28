@@ -24,6 +24,7 @@ services:
             - './UI/Resources/'
 
     App\Security\Authentication\Domain\JWTAuthorityInterface: '@App\Security\Authentication\Infrastructure\JWTAuthority'
+
     App\Security\Authentication\Domain\UserRepositoryInterface: '@App\Security\Authentication\Infrastructure\PDO\UserRepository'
 
     App\Security\Authentication\Infrastructure\ApiPlatform\OpenAPI\OpenAPIDecorator:

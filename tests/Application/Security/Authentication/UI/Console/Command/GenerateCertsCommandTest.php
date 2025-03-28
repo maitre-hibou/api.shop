@@ -14,16 +14,6 @@ use Symfony\Component\Console\Tester\CommandTester;
  */
 class GenerateCertsCommandTest extends KernelTestCase
 {
-    protected function setUp(): void
-    {
-        self::bootKernel();
-    }
-
-    protected function tearDown(): void
-    {
-        $this->clearKeys();
-    }
-
     public function testExecute(): void
     {
         $this->clearKeys();
@@ -84,6 +74,18 @@ class GenerateCertsCommandTest extends KernelTestCase
         $commandTester->assertCommandIsSuccessful();
 
         $this->assertNotSame(file_get_contents($jwtConfig['openssl']['private_key']), $keyContent);
+    }
+
+    protected function setUp(): void
+    {
+        self::bootKernel();
+    }
+
+    protected function tearDown(): void
+    {
+        $this->clearKeys();
+
+        self::ensureKernelShutdown();
     }
 
     private function clearKeys(): void
