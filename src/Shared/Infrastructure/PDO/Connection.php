@@ -23,25 +23,52 @@ final class Connection extends \PDO
         );
     }
 
-    public function transaction(callable $callback): mixed
+    public function transaction(callable $callback, int $maxRetries = 3, int $initialDelay = 10000): mixed
     {
-        $result = null;
+        $retries = 0;
+        $delay = $initialDelay;
 
-        try {
-            $this->beginTransaction();
+        while (true) {
+            try {
+                $this->beginTransaction();
 
-            $result = $callback($this);
+                $result = $callback($this);
 
-            if ($this->inTransaction()) {
-                $this->commit();
-            }
+                if ($this->inTransaction()) {
+                    $this->commit();
+                }
 
-        } catch (Throwable) {
-            if ($this->inTransaction()) {
-                $this->rollBack();
+                return $result;
+
+            } catch (Throwable $e) {
+                if ($this->inTransaction()) {
+                    $this->rollBack();
+                }
+
+                $isDeadlock = false;
+                $errorCode = $e->getCode();
+                $errorMessage = strtolower($e->getMessage());
+
+                if (
+                    $errorCode === 1213 || // MySQL deadlock
+                    $errorCode === '40P01' || // PostgreSQL deadlock
+                    strpos($errorMessage, 'deadlock') !== false ||
+                    strpos($errorMessage, 'database is locked') !== false ||
+                    strpos($errorMessage, 'serialization failure') !== false
+                ) {
+                    $isDeadlock = true;
+                }
+
+                if ($isDeadlock && $retries < $maxRetries) {
+                    $retries++;
+                    // Sleep before retry & increment delay
+                    usleep($delay);
+                    $delay *= 2;
+                    continue;
+                }
+
+                throw $e;
             }
         }
-
-        return $result;
     }
 }

@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace App\Tests\Integration\Shared\UI\Console\Command;
 
-use App\Shared\Application\Database\MigrationExecutor;
+use App\Shared\Application\Command\Database\Migrate;
+use App\Shared\Application\Command\Database\Rollback;
+use App\Shared\Domain\Database\MigrationExecutorInterface;
 use App\Shared\Infrastructure\PDO\Connection;
+use App\Shared\Infrastructure\PDO\MigrationExecutor;
 use App\Shared\Infrastructure\PDO\MigrationRepository;
 use App\Shared\UI\Console\Command\MigrateCommand;
 use App\Tests\CanCreateMigrationFiles;
@@ -19,13 +22,11 @@ class MigrateCommandTest extends TestCase
     use CanCreateMigrationFiles;
 
     private Connection $connection;
-
     private MigrationRepository $repository;
-
-    private MigrationExecutor $executor;
-
+    private MigrationExecutorInterface $executor;
+    private Migrate $migrateCommand;
+    private Rollback $rollbackCommand;
     private CommandTester $commandTester;
-
     private Filesystem $filesystem;
 
     protected function setUp(): void
@@ -55,8 +56,10 @@ class MigrateCommandTest extends TestCase
 
         $this->repository = new MigrationRepository($this->connection, $this->migrationsPath);
         $this->executor = new MigrationExecutor($this->repository, $this->connection);
+        $this->migrateCommand = new Migrate($this->executor);
+        $this->rollbackCommand = new Rollback($this->executor);
 
-        $command = new MigrateCommand($this->executor);
+        $command = new MigrateCommand($this->migrateCommand, $this->rollbackCommand);
 
         $application = new Application();
         $application->add($command);
@@ -96,7 +99,7 @@ class MigrateCommandTest extends TestCase
         $this->createTestMigrationWithSchema('20230101000000_create_test_table.php', 'test_table', ['id INTEGER', 'name TEXT']);
         $this->createTestMigrationWithSchema('20230102000000_create_another_table.php', 'another_table', ['id INTEGER', 'description TEXT']);
 
-        $this->executor->migrate();
+        ($this->migrateCommand)();
 
         $tables = $this->getTableNames();
         $this->assertContains('test_table', $tables);
@@ -150,8 +153,7 @@ class MigrateCommandTest extends TestCase
 <?php
 declare(strict_types=1);
 
-use App\Shared\Domain\Database\MigrationInterface;
-use App\Shared\Infrastructure\PDO\Connection;
+use App\Shared\Domain\Database\MigrationInterface;use App\Shared\Infrastructure\PDO\Connection;
 
 return new class implements MigrationInterface {
     public function up(Connection \$connection): void {

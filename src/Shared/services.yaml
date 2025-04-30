@@ -1,0 +1,51 @@
+twig:
+    paths:
+        '%kernel.project_dir%/src/Shared/UI/Resources/templates': 'shared'
+
+parameters:
+    shared.database:
+        dsn: '%env(DB_DSN)%'
+        username: '%env(DB_USERNAME)%'
+        password: '%env(DB_PASSWORD)%'
+    shared.migrations.path: '%kernel.project_dir%/database/migrations'
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        bind:
+            $dbParameters: '%shared.database%'
+            $migrationsPath: '%shared.migrations.path%'
+
+    App\Shared\:
+        resource: './'
+        exclude:
+            - './Domain/'
+            - './Infrastructure/Symfony/DependencyInjection/'
+            - './UI/Resources/'
+
+    App\Shared\Domain\Database\MigrationExecutorInterface: '@App\Shared\Infrastructure\PDO\MigrationExecutor'
+
+    App\Shared\Domain\Database\MigrationRepositoryInterface: '@App\Shared\Infrastructure\PDO\MigrationRepository'
+
+    App\Shared\Infrastructure\ApiPlatform\OpenAPI\OpenAPIDecorator:
+        decorates: 'api_platform.openapi.factory'
+        arguments: [ '@.inner' ]
+
+    Symfony\Component\HttpFoundation\Session\Storage\Handler\RedisSessionHandler:
+        arguments:
+            - '@Redis'
+
+    Redis:
+        class: \Redis
+        calls:
+            - connect:
+                  - '%env(REDIS_HOST)%'
+                  - '%env(REDIS_PORT)%'
+
+when@test:
+    parameters:
+        shared.database:
+            dsn: 'sqlite::memory:'
+            username: ''
+            password: ''

@@ -14,8 +14,7 @@ trait CanCreateMigrationFiles
 <?php
 declare(strict_types=1);
 
-use App\Shared\Domain\Database\MigrationInterface;
-use App\Shared\Infrastructure\PDO\Connection;
+use App\Shared\Domain\Database\MigrationInterface;use App\Shared\Infrastructure\PDO\Connection;
 
 return new class implements MigrationInterface {
     public function up(Connection $connection): void {}

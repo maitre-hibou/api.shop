@@ -51,6 +51,6 @@ class Kernel extends BaseKernel
             $routes->import($fileName, 'attribute');
         }
 
-        $routes->import(sprintf('%s/src/**/*/Infrastructure/Symfony/_config/routes.{yaml,yml,php,yaml}', $this->getProjectDir()));
+        $routes->import(sprintf('%s/src/**/*/routes.{yaml,yml,php,yaml}', $this->getProjectDir()));
     }
 }

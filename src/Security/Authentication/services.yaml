@@ -1,0 +1,40 @@
+parameters:
+    jwt:
+        ttl: 300
+        mode: openssl
+        hash_hmac:
+            passphrase: 'secret'
+        openssl:
+            private_key: '%kernel.project_dir%/config/certs/private.pem'
+            private_key_pass: 'secret'
+            public_key: '%kernel.project_dir%/config/certs/public.pem'
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        bind:
+            $jwtConfig: '%jwt%'
+
+    App\Security\Authentication\:
+        resource: './'
+        exclude:
+            - './Domain/'
+            - './Infrastructure/Symfony/DependencyInjection/'
+            - './UI/Resources/'
+
+    App\Security\Authentication\Domain\JWTAuthorityInterface: '@App\Security\Authentication\Infrastructure\JWTAuthority'
+
+    App\Security\Authentication\Domain\UserRepositoryInterface: '@App\Security\Authentication\Infrastructure\PDO\UserRepository'
+
+    App\Security\Authentication\Infrastructure\ApiPlatform\OpenAPI\OpenAPIDecorator:
+        decorates: 'api_platform.openapi.factory'
+        arguments: [ '@.inner' ]
+
+when@test:
+    parameters:
+        jwt:
+            openssl:
+                private_key_pass: 'secret'
+                private_key: '%kernel.project_dir%/tests/.stubs/structure/config/certs/private.pem'
+                public_key: '%kernel.project_dir%/tests/.stubs/structure/config/certs/public.pem'

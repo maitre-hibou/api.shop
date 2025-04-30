@@ -1,0 +1,15 @@
+twig:
+    paths:
+        '%kernel.project_dir%/src/Content/UI/Resources/templates': 'content'
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    App\Content\:
+        resource: './'
+        exclude:
+            - './Domain/'
+            - './Infrastructure/Symfony/DependencyInjection/'
+            - './UI/Resources/'

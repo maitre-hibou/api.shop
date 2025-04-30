@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace App\Tests\Application\Shared\UI\Console\Command;
 
-use App\Shared\Application\Database\MigrationExecutor;
+use App\Shared\Application\Command\Database\Migrate;
+use App\Shared\Application\Command\Database\Rollback;
 use App\Shared\UI\Console\Command\MigrateCommand;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -13,15 +14,16 @@ use Symfony\Component\Console\Tester\CommandTester;
 
 class MigrateCommandTest extends TestCase
 {
-    private MigrationExecutor|MockObject $migrationExecutor;
-
+    private Migrate|MockObject $migrateCommand;
+    private Rollback|MockObject $rollbackCommand;
     private CommandTester $commandTester;
 
     protected function setUp(): void
     {
-        $this->migrationExecutor = $this->createMock(MigrationExecutor::class);
+        $this->migrateCommand = $this->createMock(Migrate::class);
+        $this->rollbackCommand = $this->createMock(Rollback::class);
 
-        $command = new MigrateCommand($this->migrationExecutor);
+        $command = new MigrateCommand($this->migrateCommand, $this->rollbackCommand);
 
         $application = new Application();
         $application->add($command);
@@ -31,8 +33,8 @@ class MigrateCommandTest extends TestCase
 
     public function testExecuteMigrateSuccess(): void
     {
-        $this->migrationExecutor->expects($this->once())
-            ->method('migrate')
+        $this->migrateCommand->expects($this->once())
+            ->method('__invoke')
             ->willReturn([
                 '20230101000000_test_migration_1.php',
                 '20230102000000_test_migration_2.php',
@@ -54,8 +56,8 @@ class MigrateCommandTest extends TestCase
 
     public function testExecuteMigrateWithNoMigrations(): void
     {
-        $this->migrationExecutor->expects($this->once())
-            ->method('migrate')
+        $this->migrateCommand->expects($this->once())
+            ->method('__invoke')
             ->willReturn([]);
 
         $this->commandTester->execute([
@@ -72,8 +74,8 @@ class MigrateCommandTest extends TestCase
 
     public function testExecuteRollbackSuccess(): void
     {
-        $this->migrationExecutor->expects($this->once())
-            ->method('rollback')
+        $this->rollbackCommand->expects($this->once())
+            ->method('__invoke')
             ->willReturn([
                 '20230102000000_test_migration_2.php',
                 '20230101000000_test_migration_1.php',
@@ -96,8 +98,8 @@ class MigrateCommandTest extends TestCase
 
     public function testExecuteRollbackWithNoMigrations(): void
     {
-        $this->migrationExecutor->expects($this->once())
-            ->method('rollback')
+        $this->rollbackCommand->expects($this->once())
+            ->method('__invoke')
             ->willReturn([]);
 
         $this->commandTester->execute([
@@ -115,8 +117,8 @@ class MigrateCommandTest extends TestCase
 
     public function testExecuteMigrateFailure(): void
     {
-        $this->migrationExecutor->expects($this->once())
-            ->method('migrate')
+        $this->migrateCommand->expects($this->once())
+            ->method('__invoke')
             ->willThrowException(new \Exception('Database connection error'));
 
         $this->commandTester->execute([
@@ -133,8 +135,8 @@ class MigrateCommandTest extends TestCase
 
     public function testExecuteRollbackFailure(): void
     {
-        $this->migrationExecutor->expects($this->once())
-            ->method('rollback')
+        $this->rollbackCommand->expects($this->once())
+            ->method('__invoke')
             ->willThrowException(new \Exception('Failed to roll back migrations'));
 
         $this->commandTester->execute([

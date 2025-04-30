@@ -9,6 +9,7 @@ CONSOLE = $(PHP) bin/console
 help: 				## Display this message
 	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n\n"} /^[a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
 
+
 install: build up 	## Start project installation process
 
 .PHONY: help install
@@ -20,6 +21,7 @@ build: 				## Build project images
 	@docker compose build --pull
 
 down: 				## Remove project containers
+	-@docker network disconnect ${COMPOSE_PROJECT_NAME}_external ${LOCAL_PROXY_CONTAINER_NAME}
 	@docker compose down -v --remove-orphans
 
 kill:
@@ -44,3 +46,10 @@ console: 			## Shortcut to use Symfony console within app container
 	@$(CONSOLE) ${c}
 
 .PHONY: composer console
+
+##@ Testing / QA
+
+phpunit: 			## Execute PHPUnit test suite
+	@docker compose run --rm test-runner php bin/phpunit --do-not-cache-result ${c}
+
+.PHONY: phpunit
